@@ -1,0 +1,11 @@
+{
+  "name": "lastabilite-contracts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:LaStabilite/lastabilite-contracts.git",
+  "author": "ms-cash",
+  "license": "MIT",
+  "dependencies": {
+    "truffle": "^5.4.17"
+  }
+}

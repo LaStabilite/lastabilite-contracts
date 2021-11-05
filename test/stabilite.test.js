@@ -5,7 +5,7 @@ require("chai")
   .should();
 
 const Stabilite = artifacts.require("Stabilite");
-const MockVault = artifacts.require("MockVault");
+const MockToken = artifacts.require("MockToken");
 
 contract("Stabilite", (accounts) => {
   const [sender, other] = accounts;
@@ -14,9 +14,9 @@ contract("Stabilite", (accounts) => {
   let vault1, vault2, vault3, stabilite;
 
   before(async () => {
-    vault1 = await MockVault.new();
-    vault2 = await MockVault.new();
-    vault3 = await MockVault.new();
+    vault1 = await MockToken.new();
+    vault2 = await MockToken.new();
+    vault3 = await MockToken.new();
     stabilite = await Stabilite.new("Stabilite MOCK", "litMOCK");
   });
 

@@ -24,9 +24,9 @@ contract MockMobiusLPGauge is IMobiusLPGauge, ERC20 {
     return address(lpToken);
   }
 
-  function deposit(uint256 value, address onBehalfOf) external override {
+  function deposit(uint256 value) external override {
     lpToken.safeTransferFrom(msg.sender, address(this), value);
-    _mint(onBehalfOf, value);
+    _mint(msg.sender, value);
   }
 
   function withdraw(uint256 value) external override {

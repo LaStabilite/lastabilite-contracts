@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-import "../interfaces/IMobiusLP.sol";
+import "../interfaces/IMobiusSwap.sol";
 import "../interfaces/IMobiusLPGauge.sol";
 import "../interfaces/IMobiusMinter.sol";
 
@@ -18,7 +18,8 @@ contract MobiusVault is ERC20, Ownable, ReentrancyGuard {
 
   IMobiusMinter public immutable mobiMinter;
   IMobiusLPGauge public immutable lpGauge;
-  IMobiusLP public immutable lp;
+  IMobiusSwap public immutable lpSwap;
+  IERC20 public immutable lp;
 
   address public rewardRecipient;
 
@@ -33,11 +34,13 @@ contract MobiusVault is ERC20, Ownable, ReentrancyGuard {
     string memory _tokenSymbol,
     IMobiusMinter _mobiMinter,
     IMobiusLPGauge _lpGauge,
+    IMobiusSwap _lpSwap,
     address _rewardRecipient
   ) ERC20(_tokenName, _tokenSymbol) {
     mobiMinter = _mobiMinter;
     lpGauge = _lpGauge;
-    lp = IMobiusLP(_lpGauge.lp_token());
+    lpSwap = _lpSwap;
+    lp = IERC20(_lpGauge.lp_token());
     rewardRecipient = _rewardRecipient;
   }
 
@@ -60,7 +63,8 @@ contract MobiusVault is ERC20, Ownable, ReentrancyGuard {
     if (address(token) == address(lpGauge)) {
       uint256 lockedValue = IERC20(address(lpGauge))
         .balanceOf(address(this))
-        .mul(lp.getVirtualPrice());
+        .mul(lpSwap.getVirtualPrice())
+        .div(1 ether);
       // ((total - locked) / total) * locked
       uint256 redeemable = lockedValue
         .sub(totalSupply())
@@ -88,9 +92,14 @@ contract MobiusVault is ERC20, Ownable, ReentrancyGuard {
       address(this),
       _depositAmount
     );
-    IERC20(address(lp)).approve(address(lpGauge), _depositAmount);
-    lpGauge.deposit(_depositAmount, address(this));
-    uint256 mintAmount = _depositAmount.mul(lp.getVirtualPrice());
+    require(
+      IERC20(address(lp)).approve(address(lpGauge), _depositAmount),
+      "Approve for lpGauge deposit failed"
+    );
+    lpGauge.deposit(_depositAmount);
+    uint256 mintAmount = _depositAmount.mul(lpSwap.getVirtualPrice()).div(
+      1 ether
+    );
     _mint(_onBehalfOf, mintAmount);
   }
 
@@ -99,7 +108,9 @@ contract MobiusVault is ERC20, Ownable, ReentrancyGuard {
   /// @param _to The recipient of the vault tokens
   function withdraw(uint256 _burnAmount, address _to) external nonReentrant {
     _burn(msg.sender, _burnAmount);
-    uint256 withdrawAmount = _burnAmount.div(lp.getVirtualPrice());
+    uint256 withdrawAmount = _burnAmount.mul(1 ether).div(
+      lpSwap.getVirtualPrice()
+    );
     lpGauge.withdraw(withdrawAmount);
     IERC20(address(lp)).safeTransfer(_to, withdrawAmount);
   }

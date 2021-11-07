@@ -4,6 +4,7 @@ require("chai")
   .use(require("chai-as-promised"))
   .should();
 
+const { toWei } = require("web3-utils");
 const ERC20 = artifacts.require("ERC20");
 const MobiusVault = artifacts.require("MobiusVault");
 const MobiusMinter = artifacts.require("MockMobiusMinter");
@@ -26,6 +27,7 @@ contract("MobiusVault", (accounts) => {
       "mobiVAULT",
       mobi.address,
       lpGauge.address,
+      lpToken.address, // Stands in as lpSwap
       rewardRecipient
     );
   });
@@ -97,7 +99,7 @@ contract("MobiusVault", (accounts) => {
   describe("#redeemReward", () => {
     it("should work", async () => {
       // Quadruple the virtual price
-      await lpToken.setVirtualPrice(4);
+      await lpToken.setVirtualPrice(toWei("4"));
 
       // Redeem LP
       const lpTokenBalanceBefore = await lpToken.balanceOf(rewardRecipient);

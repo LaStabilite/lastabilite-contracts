@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-import "../interfaces/IMobiusLP.sol";
+import "../interfaces/IMobiusSwap.sol";
 
-contract MockMobiusLP is IMobiusLP, ERC20 {
-  uint256 virtualPrice = 1;
+contract MockMobiusLP is IMobiusSwap, ERC20 {
+  uint256 virtualPrice = 1 ether;
 
   constructor() ERC20("Mock", "MOCK") {
     _mint(msg.sender, 100 ether);

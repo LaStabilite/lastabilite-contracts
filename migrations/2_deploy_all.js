@@ -1,11 +1,11 @@
-const STAB = artifacts.require("STAB");
+const STABIL = artifacts.require("STABIL");
 const Stabilite = artifacts.require("Stabilite");
 const MobiusVault = artifacts.require("MobiusVault");
 
 module.exports = function (deployer, network) {
   if (network === "celo") {
-    // deployer.deploy(STAB);
-    // deployer.deploy(Stabilite, "Stabilite USD", "stabUSD");
+    deployer.deploy(STABIL);
+    deployer.deploy(Stabilite, "Stabilite USD", "stabilUSD");
     deployer.deploy(
       MobiusVault,
       "MobLP USDC/cUSD Vault",
